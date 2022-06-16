@@ -14,12 +14,15 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,11 +35,12 @@ public class MainActivity extends AppCompatActivity {
     private static final String PRODUCTSTOCKS = "productstocks";
 
     EditText name,price,stocks;
-    Button add,load, update, btn_delete_stocks, btn_delete_all;
+    Button add,load;
     TextView output;
 
     //database
     private FirebaseFirestore Database = FirebaseFirestore.getInstance();
+    private CollectionReference productRef = Database.collection("ProductDb");
     private DocumentReference db = Database.document("ProductDb/Products");
 
     private void initXml() {
@@ -46,10 +50,6 @@ public class MainActivity extends AppCompatActivity {
         add = findViewById(R.id.btn_addproduct);
         load = findViewById(R.id.btn_load);
         output = findViewById(R.id.output);
-        update = findViewById(R.id.btn_update);
-        btn_delete_stocks = findViewById(R.id.btn_delete_stocks);
-        btn_delete_all = findViewById(R.id.btn_delete_all);
-
     }
 
     @Override
@@ -72,90 +72,45 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        update.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                update();
-            }
-        });
 
-        btn_delete_all.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteAll();
-            }
-        });
-
-        btn_delete_stocks.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteStocks();
-            }
-        });
 
     }
 
-    private void deleteStocks() {
-        db.update("stocks", FieldValue.delete());
-    }
 
-    private void deleteAll() {
-        db.delete();
-    }
-
-    private void update() {
-        String ProductStocks = stocks.getText().toString();
-
-        db.update("stocks", ProductStocks);
-    }
 
     private void load() {
-        db.get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if(documentSnapshot.exists()){
+       productRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+           @Override
+           public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+               String data = "";
 
-                                Product product = documentSnapshot.toObject(Product.class);
+               for(QueryDocumentSnapshot documentSnapshot: queryDocumentSnapshots){
+                   Product product = documentSnapshot.toObject(Product.class);
+                   product.setId(documentSnapshot.getId());
 
-                                String productName = product.getName();
-                                String productPrice = product.getPrice();
-                                String productStocks = product.getStocks();
 
-                                output.setText("Product Name: " + productName + "\n Price: " + productPrice + "\n Stocks: " + productStocks );
+                   String documentId = product.getId();
+                   String name = product.getName();
+                   String price = product.getPrice();
+                   String stocks = product.getStocks();
 
-                        }else{
-                            Toast.makeText(MainActivity.this, "Products Does't exist", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, e.toString());
-            }
-        });
+                   data += "\nDocumentId: " + documentId + "\nName: " + name + "\nPrice: " + price + " \nStocks: " + stocks + "\n";
+
+               }
+
+               output.setText(data);
+
+           }
+       });
     }
 
     private void add() {
         String ProductName = name.getText().toString();
         String ProductPrice = price.getText().toString();
         String ProductStocks = stocks.getText().toString();
-
         Product product = new Product(ProductName,ProductPrice,ProductStocks);
 
-        db.set(product).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-                Toast.makeText(MainActivity.this, "Products saved", Toast.LENGTH_SHORT).show();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, e.toString());
-            }
-        });
+        productRef.add(product);
 
 
     }
@@ -164,30 +119,30 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        db.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+        productRef.addSnapshotListener(this,new EventListener<QuerySnapshot>() {
             @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-
+            public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
                 if(e != null){
-                    Toast.makeText(MainActivity.this, "Error While Loading data", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, e.toString());
                     return;
                 }
 
-            if(documentSnapshot.exists()){
-                Product product = documentSnapshot.toObject(Product.class);
+                String data = "";
 
-                String productName = product.getName();
-                String productPrice = product.getPrice();
-                String productStocks = product.getStocks();
+                for(QueryDocumentSnapshot documentSnapshot : querySnapshot){
+                    Product product = documentSnapshot.toObject(Product.class);
+                    product.setId(documentSnapshot.getId());
 
+                    String documentId = product.getId();
+                    String name = product.getName();
+                    String price = product.getPrice();
+                    String stocks = product.getStocks();
 
-                output.setText("Product Name: " + productName + "\n Price: " + productPrice + "\n Stocks: " + productStocks );
-            }else{
-                output.setText("");
-            }
+                    data += "\n Document Id: " + documentId +  "\nName: " + name + "\nPrice: " + price + " \nStocks: " + stocks + "\n";
+                }
 
+                    output.setText(data);
             }
         });
+
     }
 }

@@ -1,6 +1,9 @@
 package com.example.firebasetutorial;
 
+import com.google.firebase.firestore.Exclude;
+
 public class Product {
+    private  String id;
     private String name;
     private String price;
     private  String stocks;
@@ -27,5 +30,12 @@ public class Product {
         return stocks;
     }
 
+    @Exclude
+    public String getId() {
+        return id;
+    }
 
+    public void setId(String id) {
+        this.id = id;
+    }
 }

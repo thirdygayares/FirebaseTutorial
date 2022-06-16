@@ -173,47 +173,9 @@
 
 
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn_update"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/triColo"
-                android:text="Update Product"
-                android:padding="10dp"
-                android:layout_marginBottom="20dp"
-                android:textColor="@color/white"
-                android:gravity="center"
-                android:textSize="20dp">
-            </androidx.appcompat.widget.AppCompatButton>
-
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn_delete_stocks"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/triColo"
-                android:text="Delete Stocks"
-                android:padding="10dp"
-                android:layout_marginBottom="20dp"
-                android:textColor="@color/white"
-                android:gravity="center"
-                android:textSize="20dp">
-            </androidx.appcompat.widget.AppCompatButton>
-
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn_delete_all"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/triColo"
-                android:text="Update Product"
-                android:padding="10dp"
-                android:layout_marginBottom="20dp"
-                android:textColor="@color/white"
-                android:gravity="center"
-                android:textSize="20dp">
-            </androidx.appcompat.widget.AppCompatButton>
-
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
 
             <TextView
                 android:id="@+id/output"
@@ -223,6 +185,10 @@
                 android:fontFamily="@font/poppinsmedium"
                 android:text=""
                 ></TextView>
+            </androidx.core.widget.NestedScrollView>
+
+
+
 
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
