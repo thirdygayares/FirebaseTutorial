@@ -112,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
 
         productRef.add(product);
 
-
     }
 
     @Override
