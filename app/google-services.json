@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "291580850011",
+    "project_id": "proud-life-325020",
+    "storage_bucket": "proud-life-325020.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:291580850011:android:40980e292ef001eeb4347e",
+        "android_client_info": {
+          "package_name": "com.example.firebasetutorial"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "291580850011-5hjprtbd3tng02fs7d3cn1u3m8guubqv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOrZ7-MHAZdwZKhBvK4W0tLd9PquC5Qd0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "291580850011-5hjprtbd3tng02fs7d3cn1u3m8guubqv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
