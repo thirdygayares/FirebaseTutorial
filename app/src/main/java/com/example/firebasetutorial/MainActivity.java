@@ -81,7 +81,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void load() {
        productRef
-               .whereLessThanOrEqualTo("stocks",5)
+               .whereLessThanOrEqualTo("stocks",3)
+               .whereEqualTo("name", "Aa")
                .orderBy("stocks", Query.Direction.DESCENDING)
                .limit(3)
                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -106,6 +107,11 @@ public class MainActivity extends AppCompatActivity {
 
                output.setText(data);
 
+           }
+       }).addOnFailureListener(new OnFailureListener() {
+           @Override
+           public void onFailure(@NonNull Exception e) {
+               Log.d(TAG, e.toString());
            }
        });
     }
