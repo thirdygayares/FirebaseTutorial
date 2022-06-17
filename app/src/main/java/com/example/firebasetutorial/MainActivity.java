@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore Database = FirebaseFirestore.getInstance();
     private CollectionReference productRef = Database.collection("ProductDb");
     private DocumentReference db = Database.document("ProductDb/Products");
+    private DocumentSnapshot lastResult;
+
 
     private void initXml() {
         name = findViewById(R.id.txt_name);
@@ -67,40 +69,44 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void load() {
+        Query query;
+        if (lastResult == null){
+            query = productRef.orderBy("stocks").limit(3);
 
-        productRef.document("1vKwOvR6mvDWgVKy2np3").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                productRef.orderBy("stocks")
-                        .startAt(documentSnapshot)
-                        .get()
-                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                            @Override
-                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                String data = "";
+        }else{
+            query = productRef.orderBy("stocks")
+                    .startAfter(lastResult)
+                    .limit(3);
+        }
 
-                                for (QueryDocumentSnapshot documentSnapshot: queryDocumentSnapshots)
-                                {
-                                    Product product = documentSnapshot.toObject(Product.class);
-                                    product.setId(documentSnapshot.getId());
+        query.get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        String data = "";
 
-                                    String id = product.getId();
-                                    String name = product.getName();
-                                    String price = product.getPrice();
-                                    int stocks = product.getStocks();
+                        for (QueryDocumentSnapshot documentSnapshot: queryDocumentSnapshots)
+                        {
+                            Product product = documentSnapshot.toObject(Product.class);
+                            product.setId(documentSnapshot.getId());
 
+                            String id = product.getId();
+                            String name = product.getName();
+                            String price = product.getPrice();
+                            int stocks = product.getStocks();
 
-                                    data += "\n\nId: " + id + "\nName: " + name + "\nPrice: " + price + "\nstocks: " + stocks ;
+                            data += "\n\nId: " + id + "\nName: " + name + "\nPrice: " + price + "\nstocks: " + stocks ;
 
-                                }
+                        }
+                        if(queryDocumentSnapshots.size() > 0) {
+                            data += "\n_____________\n\n";
+                            output.append(data);
+                            lastResult = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() -1 );
 
-                                output.setText(data);
-                            }
-                        });
+                        }
 
-            }
-        });
-
+                    }
+                });
 
     }
 
