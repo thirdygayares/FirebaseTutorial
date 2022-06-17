@@ -1,6 +1,7 @@
 package com.example.firebasetutorial;
 
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,9 +12,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -127,6 +131,43 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        productRef.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
+               if(error != null){
+                   return;
+               }
 
+               for (DocumentChange dc: queryDocumentSnapshots.getDocumentChanges()){
+                   DocumentSnapshot documentSnapshot = dc.getDocument();
+                   String id = documentSnapshot.getId();
+
+                   int oldIndex = dc.getOldIndex();
+                   int newIndex = dc.getNewIndex();
+
+                   switch (dc.getType()){
+                       case ADDED:
+                           output.append("\n Added: " + id +
+                                   "\nold Index: " + oldIndex + "\nNew Index: " + newIndex + "\n");
+                           break;
+
+                       case MODIFIED:
+                           output.append("\n MODIFIED: " + id +
+                                   "\nold Index: " + oldIndex + "\nNew Index: " + newIndex + "\n");
+                           break;
+
+
+                       case REMOVED:
+                           output.append("\n REMOVED: " + id +
+                                   "\nold Index: " + oldIndex + "\nNew Index: " + newIndex + "\n");
+                           break;
+
+
+                   }
+
+               }
+
+            }
+        });
     }
 }
