@@ -1,42 +1,28 @@
 package com.example.firebasetutorial;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    private static final String PRODUCTNAME = "productname";
-    private static final String PRODUCTPRICE = "productprice";
-    private static final String PRODUCTSTOCKS = "productstocks";
+
 
     EditText name, price, stock;
     Button add, load;
@@ -81,39 +67,40 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void load() {
-        Task task1 = productRef
-                .whereLessThan("stocks", 3)
-                .orderBy("stocks", Query.Direction.DESCENDING)
-                .get();
 
-        Task task2 = productRef
-                .whereGreaterThan("stocks", 3)
-                .orderBy("stocks", Query.Direction.DESCENDING)
-                .get();
-
-        Task<List<QuerySnapshot>> allTask = Tasks.whenAllSuccess(task1, task2);
-        allTask.addOnSuccessListener(new OnSuccessListener<List<QuerySnapshot>>() {
+        productRef.document("1vKwOvR6mvDWgVKy2np3").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onSuccess(List<QuerySnapshot> querySnapshots) {
-                String data = "";
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                productRef.orderBy("stocks")
+                        .startAt(documentSnapshot)
+                        .get()
+                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                String data = "";
 
-                for (QuerySnapshot queryDocumentSnapshots : querySnapshots) {
-                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                        Product product = documentSnapshot.toObject(Product.class);
-                        product.setId(documentSnapshot.getId());
+                                for (QueryDocumentSnapshot documentSnapshot: queryDocumentSnapshots)
+                                {
+                                    Product product = documentSnapshot.toObject(Product.class);
+                                    product.setId(documentSnapshot.getId());
 
-                        String documentId = product.getId();
-                        String name = product.getName();
-                        String price = product.getPrice();
-                        int stocks = product.getStocks();
+                                    String id = product.getId();
+                                    String name = product.getName();
+                                    String price = product.getPrice();
+                                    int stocks = product.getStocks();
 
-                        data += "\n Document Id: " + documentId + "\nName: " + name + "\nPrice: " + price + " \nStocks: " + stocks + "\n";
-                    }
-                }
 
-                output.setText(data);
+                                    data += "\n\nId: " + id + "\nName: " + name + "\nPrice: " + price + "\nstocks: " + stocks ;
+
+                                }
+
+                                output.setText(data);
+                            }
+                        });
+
             }
         });
+
 
     }
 
@@ -134,31 +121,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
-        productRef.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    return;
-                }
-
-                String data = "";
-                for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
-                    Product product = documentSnapshot.toObject(Product.class);
-                    product.setId(documentSnapshot.getId());
-
-                    String documentId = product.getId();
-                    String name = product.getName();
-                    String price = product.getPrice();
-                    int stocks = product.getStocks();
-
-
-                    data += "\n Document Id: " + documentId + "\nName: " + name + "\nPrice: " + price + " \nStocks: " + stocks + "\n";
-                }
-
-                output.setText(data);
-            }
-        });
 
     }
 }
