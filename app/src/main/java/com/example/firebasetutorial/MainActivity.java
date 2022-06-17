@@ -21,6 +21,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String PRODUCTPRICE = "productprice";
     private static final String PRODUCTSTOCKS = "productstocks";
 
-    EditText name,price,stocks;
+    EditText name,price,stock;
     Button add,load;
     TextView output;
 
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private void initXml() {
         name = findViewById(R.id.txt_name);
         price = findViewById(R.id.txt_price);
-        stocks = findViewById(R.id.txt_stocks);
+        stock = findViewById(R.id.txt_stocks);
         add = findViewById(R.id.btn_addproduct);
         load = findViewById(R.id.btn_load);
         output = findViewById(R.id.output);
@@ -79,7 +80,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void load() {
-       productRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+       productRef
+               .whereLessThanOrEqualTo("stocks",5)
+               .orderBy("stocks", Query.Direction.DESCENDING)
+               .limit(3)
+               .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
            @Override
            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                String data = "";
@@ -89,10 +94,11 @@ public class MainActivity extends AppCompatActivity {
                    product.setId(documentSnapshot.getId());
 
 
+
                    String documentId = product.getId();
                    String name = product.getName();
                    String price = product.getPrice();
-                   String stocks = product.getStocks();
+                   int stocks = product.getStocks();
 
                    data += "\nDocumentId: " + documentId + "\nName: " + name + "\nPrice: " + price + " \nStocks: " + stocks + "\n";
 
@@ -107,9 +113,13 @@ public class MainActivity extends AppCompatActivity {
     private void add() {
         String ProductName = name.getText().toString();
         String ProductPrice = price.getText().toString();
-        String ProductStocks = stocks.getText().toString();
-        Product product = new Product(ProductName,ProductPrice,ProductStocks);
 
+        if(stock.length() == 0){
+            stock.setText("0");
+        }
+
+        int ProductStocks = Integer.parseInt(stock.getText().toString());
+        Product product = new Product(ProductName,ProductPrice,ProductStocks);
         productRef.add(product);
 
     }
@@ -126,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 String data = "";
-
                 for(QueryDocumentSnapshot documentSnapshot : querySnapshot){
                     Product product = documentSnapshot.toObject(Product.class);
                     product.setId(documentSnapshot.getId());
@@ -134,7 +143,8 @@ public class MainActivity extends AppCompatActivity {
                     String documentId = product.getId();
                     String name = product.getName();
                     String price = product.getPrice();
-                    String stocks = product.getStocks();
+                    int stocks = product.getStocks();
+
 
                     data += "\n Document Id: " + documentId +  "\nName: " + name + "\nPrice: " + price + " \nStocks: " + stocks + "\n";
                 }

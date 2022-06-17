@@ -6,28 +6,16 @@ public class Product {
     private  String id;
     private String name;
     private String price;
-    private  String stocks;
+    private  int stocks;
 
     public Product(){
         //needed lang to
     }
 
-    public Product(String name, String price, String stocks) {
+    public Product(String name, String price, int stocks) {
         this.name = name;
         this.price = price;
         this.stocks = stocks;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getPrice() {
-        return price;
-    }
-
-    public String getStocks() {
-        return stocks;
     }
 
     @Exclude
@@ -38,4 +26,22 @@ public class Product {
     public void setId(String id) {
         this.id = id;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPrice() {
+        return price;
+    }
+
+    public int getStocks() {
+        return stocks;
+    }
+
+    public void setStocks(int stocks) {
+        this.stocks = stocks;
+    }
+
+
 }
